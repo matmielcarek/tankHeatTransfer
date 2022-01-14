@@ -1,0 +1,11 @@
+Crit from,Crit_to,Conv_type,C,Re,Ra,Pr
+"Ra_in"
+nan,nan,nan,nan,nan,nan,nan
+nan,nan,nan,nan,nan,nan,nan
+0,30000000000,free,0.27,0,0.25,0
+10000,1000000000,free,0.59,0,0.25,0
+1000000000,10000000000000,free,0.1,0,0.333,0
+nan,nan,nan,nan,nan,nan,nan
+100000,20000000,free,0.54,0,0.25,0
+20000000,30000000000,free,0.14,0,0.333,0
+nan,nan,nan,nan,nan,nan,nan

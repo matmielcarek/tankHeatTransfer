@@ -1,0 +1,14 @@
+Crit from,Crit_to,Conv_type,C,Re,Ra,Pr,Sr,Fr
+"Re_in"
+nan,nan,nan,nan,nan,nan,nan,nan,nan
+nan,nan,nan,nan,nan,nan,nan,nan,nan
+300000,10000000,turbulent flow with forced,0.037,0.8,0,0.333,0,0
+0,300000,laminar flow forced,0.664,0.5,0,0.333,0,0
+nan,nan,nan,nan,nan,nan,nan,nan,nan
+nan,nan,nan,nan,nan,nan,nan,nan,nan
+300000,10000000,turbulent flow with forced,0.037,0.8,0,0.333,0,0
+0,300000,laminar flow forced,0.664,0.5,0,0.333,0,0
+nan,nan,nan,nan,nan,nan,nan,nan,nan
+nan,nan,nan,nan,nan,nan,nan,nan,nan
+300000,10000000,turbulent flow with forced,0.037,0.8,0,0.333,0,0
+0,300000,laminar flow forced,0.664,0.5,0,0.333,0,0

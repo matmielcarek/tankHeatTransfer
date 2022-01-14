@@ -1,0 +1,6 @@
+CoolProp_name,display_name,identifier
+air,air,A
+water,fresh water,F
+water,sea water,S
+INCOMP::PBB,heavy oil,H
+INCOMP::PHR,light oil,L
