@@ -1,10 +1,16 @@
+# [IMPORTANT] This is my first code in Python, written just to try it out and
+# without prior reading about OOP languages as such. My interest in programming
+# has its origins in small programs I wrote in VBA using Excel in a purely functional
+# way, and that's how this application is written too.
 
-# pozbyć się migotania obliczeń
-# sprawdzić korelacje - coś jest grubo nie tak
-# HELP # sea water / fresh water wyjaśnić w help
-# HELP # Doerrfer na dnie wyjaśnić w help
-# HELP # current limitations
-# pimp messages
+# I'm only uploading it here because it's an actual, practical tool for calculating
+# convective heat transfer in ship tanks, based in part on my own research in this area.
+
+# # This was too much work for me to rewrite everything with a proper OOP approach.
+# Of course, I'd make it much simpler and more reliable now, and who knows, maybe
+# I'll rewrite the code someday.
+
+################################## [imports]
 import pandas as pd
 import aux
 import tkinter as tk
@@ -206,6 +212,7 @@ def calc_numbers(properties,dT,L1_in,L2_in,ang,per,len,vel,tank_type_in):
 #compare criteria value to appropriate value from the crit_array and calculate Nuss and alpha
 def calc_nuss(Re_in,Ra_in,Pr_in,Sr_in,Fr_in,lam_in,L1_in,corr_name_in,corr_label_in,bnd_ori_in):
 #read an appropiate array of criteria values and exponent values based on selected correlation
+# if selected type (content) of the tank results with application of ISO Standard, force return of fixed values
     if corr_name_in == "ISO_out":
         Nuss = "not calculated"
         alpha = 80
@@ -216,6 +223,7 @@ def calc_nuss(Re_in,Ra_in,Pr_in,Sr_in,Fr_in,lam_in,L1_in,corr_name_in,corr_label
         alpha = 8
         mess1 = " convection enhanced by internal ventilation and heating appliances"
         mess2 = "HTC (\u03B1) = 8 W m^-2 K^-1 acc. to " + corr_label_in + "."
+# else, read name of correlation and appropriate csv file
     else:
         corr_array = pd.read_csv(corr_name_in)
         col = sel_Pr_exp(bnd_ori_in,corr_name_in)
@@ -223,88 +231,45 @@ def calc_nuss(Re_in,Ra_in,Pr_in,Sr_in,Fr_in,lam_in,L1_in,corr_name_in,corr_label
             Crit = eval(corr_array.iat[0, col])
         else:
             Crit = 0
-        # print(Crit)
-        # print(bnd_ori_in)
+# go through rectors of the csv file
         for i, b in enumerate(bnds):
+            # if checked boundary orientation (b) matches input boundary orientation (bnd_ori)
             if bnd_ori_in == b:
-            #for stationary cases (Re = 0)
+                #for stationary cases (Re = 0 => Crit = 0)
                 if Crit == 0:
                     j = 1
+                # build first part of the output message
                     mess1 = ", not subjected to oscillations, with " + str(corr_array.iat[i*4+j, 2]) + " convection"
-                # construct an array of applicable ranges of subsequent characteristic numbers
-                    Rn = list()
-                    Rn_chk = list()
-                    for f in range(6):
-                        Rn.append(float(corr_array.iat[i * 4 + j, f + 9]))
-                # collect characteristic numbers, converted by the scale, in an array
-                    L1_model = 0.4
-                    Num = [Re_in * (L1_model / L1_in)**2, Ra_in * (L1_model / L1_in) ** 3, Pr_in]
-                # check applicability range (Reynolds number, Rayleigh number Prandtl number)
-                    for s in range(3):
-                        if Rn[s * 2] < Num[s] < Rn[s * 2 + 1]:
-                            Rn_chk.append(True)
-                        else:
-                            Rn_chk.append(False)
-                    print("min: " + str(MMImath.rn_sig(Rn[0], acc, 1)), str(MMImath.rn_sig(Rn[2], acc, 1)),str(MMImath.rn_sig(Rn[4], acc, 0)))
-                    print("val: " + str(MMImath.rn_sig(Num[0], acc, 1)), str(MMImath.rn_sig(Num[1], acc, 1)),
-                          str(MMImath.rn_sig(Num[2], acc, 0)))
-                    print("max: " + str(MMImath.rn_sig(Rn[1], acc, 1)), str(MMImath.rn_sig(Rn[3], acc, 1)),str(MMImath.rn_sig(Rn[5], acc, 0)))
-                    print(Rn_chk)
             #construct the array of exponents applicable for selected type of convection
                     C = list()
                     for k in range(6):
                         C.append(float(corr_array.iat[i * 4 + j, k + 3]))
+                # calculate Nusselt number based on correlation parameters in csv
                     Nuss = C[0] * (Ra_in ** C[2]) * (Pr_in ** C[3])
-            #for dynamic cases (Re > 0)
+            #for dynamic cases (Re > 0 => Crit != 0)
                 else:
+
                     for j in range(2,5):
-                        # print(float(corr_array.iat[i*4+j, 0]),float(corr_array.iat[i*4+j, 1]))
                         if float(corr_array.iat[i*4+j, 0]) <= Crit < float(corr_array.iat[i*4+j, 1]):
-                            # print(Crit)
-                            # print("crit is: " + str(Crit) + "i is: " + str(i) + " / j is : " + str(j) + " / row is " + str(i*4+j))
+                        # build first part of the output message
                             mess1 = ", subjected to oscillations, with " + corr_array.iat[i*4+j, 2] + " convection"
                             if j != 3:
                                  mess1 = mess1 + " domination"
-                        # construct an array of applicable ranges of subsequent characteristic numbers
-                            Rn = list()
-                            Rn_chk = list()
-                            for f in range(6):
-                                Rn.append(float(corr_array.iat[i * 4 + j, f + 9]))
-                        # collect characteristic numbers, converted by the scale, in an array
-                            L1_model = 0.4
-                            Num = [Re_in * (L1_model / L1_in)**2, Ra_in * (L1_model / L1_in) ** 3, Pr_in]
-                        # check applicability range (Reynolds number, Rayleigh number Prandtl number)
-                            for s in range(3):
-                                if Rn[s * 2] < Num[s] < Rn[s * 2 + 1]:
-                                    Rn_chk.append(True)
-                                else:
-                                    Rn_chk.append(False)
-                            print("min: " + str(MMImath.rn_sig(Rn[0], acc, 1)), str(MMImath.rn_sig(Rn[2], acc, 1)),
-                                  str(MMImath.rn_sig(Rn[4], acc, 0)))
-                            print("val: " + str(MMImath.rn_sig(Num[0], acc, 1)), str(MMImath.rn_sig(Num[1], acc, 1)),
-                                  str(MMImath.rn_sig(Num[2], acc, 0)))
-                            print("max: " + str(MMImath.rn_sig(Rn[1], acc, 1)), str(MMImath.rn_sig(Rn[3], acc, 1)),
-                                  str(MMImath.rn_sig(Rn[5], acc, 0)))
-                            print(Rn_chk)
             #construct the array of exponents applicable for selected type of convection
                             C = list()
                             for k in range(6):
                                 C.append(float(corr_array.iat[i*4+j, k+3]))
-                            # print(C)
-            #calculate Nusselt number based on correlation parameters in exp_mielcarek.csv
+                        #calculate Nusselt number based on correlation parameters in csv
                             Nuss = C[0]*(Re_in**C[1])*(Ra_in**C[2])*(Pr_in**C[3])*(Sr_in**C[4])*(Fr_in**C[5])
-                cn = ["Re","Ra","Pr","Sr","Fr"]
-                # print(C[0])
-                # print(bnd_ori_in)
-                mess2 = "Nu = " + str(C[0])
-                for f, n in enumerate(cn):
-                    if C[f+1] != 0:
-                        mess2 = mess2 + " " + n + "^" + str(C[f+1])
-                    # mess2 = mess2 + str(C[f]) + " Re^" + str(C[1]) + " Ra^" + str(C[2]) + " Pr^" + str(C[3])
-            # calculate Nusselt number based on correlation parameters in exp_mielcarek.csv
+            # build second part of the message (correlation formula)
+                            cn = ["Re","Ra","Pr","Sr","Fr"]
+                            mess2 = "Nu = " + str(C[0])
+                            for f, n in enumerate(cn):
+                                if C[f+1] != 0:
+                                    mess2 = mess2 + " " + n + "^" + str(C[f+1])
+            # calculate alpha based on Nusselt umber
                 alpha = Nuss * lam_in / L1_in
-                # print(alpha)
-    return [Nuss,alpha,mess1,mess2]#Rn_chk
+    return [Nuss,alpha,mess1,mess2]#make object!!
 ################################## [main program]
 def calc_bnd():
 #assign boundary type of "the other" tank
@@ -331,9 +296,6 @@ def calc_bnd():
     else:
         msg = "OK"
     msg_list.append(msg)
-    # lab1 = Label(errors_frame, text=msg, wraplength=int(wth), justify=LEFT)
-    # lab1.grid(row=(40 + 0 + 2), column=0, sticky="w", columnspan=4)
-    # labels.append(lab1)
 #
     a_range = aux.Trange(fluid_cp1)
     ftemp1_ = aux.checkNumVal(ftemp1, [a_range[0], a_range[1]])
@@ -345,9 +307,6 @@ def calc_bnd():
         msg = "OK"
     msg_list.append(msg)
     ftemp1_ = ftemp1_[0]
-    # lab2 = Label(errors_frame, text=msg, wraplength=int(wth), justify=LEFT)
-    # lab2.grid(row=(40 + 1 + 2), column=0, sticky="w", columnspan=4)
-    # labels.append(lab2)
 #
     a_range = aux.Trange(fluid_cp2)
     ftemp2_ = aux.checkNumVal(ftemp2, [a_range[0], a_range[1]])
@@ -359,8 +318,6 @@ def calc_bnd():
         msg = "OK"
     msg_list.append(msg)
     ftemp2_ = ftemp2_[0]
-    # lab3 = Label(errors_frame, text=msg, wraplength=int(wth), justify=LEFT)
-    # labels.append(lab3)
 #
     a_range = [0, 45]
     ship_ang_ = aux.checkNumVal(ship_ang, [a_range[0], a_range[1]])
@@ -372,8 +329,6 @@ def calc_bnd():
         msg = "OK"
     msg_list.append(msg)
     ship_ang_ = ship_ang_[0]
-    # lab4 = Label(errors_frame, text=msg, wraplength=int(wth), justify=LEFT)
-    # labels.append(lab4)
 #
     a_range = [0, 50]
     ship_per_ = aux.checkNumVal(ship_per, [a_range[0], a_range[1]])
@@ -385,8 +340,6 @@ def calc_bnd():
         msg = "OK"
     msg_list.append(msg)
     ship_per_ = ship_per_[0]
-    # lab5 = Label(errors_frame, text=msg, wraplength=int(wth), justify=LEFT)
-    # labels.append(lab5)
 #
     a_range = [1, 500]
     ship_len_ = aux.checkNumVal(ship_len, [a_range[0], a_range[1]])
@@ -399,8 +352,6 @@ def calc_bnd():
         msg = "OK"
     msg_list.append(msg)
     ship_len_ = ship_len_[0]
-    # lab6 = Label(errors_frame, text=msg, wraplength=int(wth), justify=LEFT)
-    # labels.append(lab6)
 #
     a_range = [0, 50]
     ship_vel_ = aux.checkNumVal(ship_vel, [a_range[0], a_range[1]])
@@ -412,8 +363,6 @@ def calc_bnd():
         msg = "OK"
     msg_list.append(msg)
     ship_vel_ = ship_vel_[0]
-    # lab7 = Label(errors_frame, text=msg, wraplength=int(wth), justify=LEFT)
-    # labels.append(lab7)
 #
     a_range = [0, 60]
     dim1_ = aux.checkNumVal(dim1, [a_range[0], a_range[1]])
@@ -425,8 +374,6 @@ def calc_bnd():
         msg = "OK"
     msg_list.append(msg)
     dim1_ = dim1_[0]
-    # lab8 = Label(errors_frame, text=msg, wraplength=int(wth), justify=LEFT)
-    # labels.append(lab8)
 #
     a_range = [0, 60]
     dim2_ = aux.checkNumVal(dim2, [a_range[0], a_range[1]])
@@ -438,8 +385,6 @@ def calc_bnd():
         msg = "OK"
     msg_list.append(msg)
     dim2_ = dim2_[0]
-    # lab9 = Label(errors_frame, text=msg, wraplength=int(wth), justify=LEFT)
-    # labels.append(lab9)
 #
     a_range = [0, 100]
     dist_ = aux.checkNumVal(dist, [a_range[0], a_range[1]])
@@ -451,11 +396,6 @@ def calc_bnd():
         msg = "OK"
     msg_list.append(msg)
     dist_ = dist_[0]
-    # lab10 = Label(errors_frame, text=msg, wraplength=int(wth), justify=LEFT)
-    # labels.append(lab10)
-#
-    # print(len(msg_list))
-    # print(len(labels))
 #HERE SELECT CORR AND CHAR DIMS
 #check error messages
     err = False
