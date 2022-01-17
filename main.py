@@ -75,7 +75,7 @@ dim2.set("10")
 dist = StringVar(r)
 dist.set("10")
 ################################## [widgets' and variables' actions]
-#ch4 checkbutton - change text and seto to "checked" once boundary function is selected
+#ch4 checkbutton - change text and set to to "checked" once boundary function is selected
 def checkFluids(self):
     # global fluids1
     # global fluids2
